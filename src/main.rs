@@ -1,16 +1,14 @@
-use minigrep::{search, search_case_insensitive};
+use minigrep::{parameter::Parameters, search, search_case_insensitive};
 use std::{env, error::Error, fs, process};
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    let params = Parameters::build(&args).unwrap_or_else(|err| {
-        println!("Problem parsing arguments: {err}");
+    let params = Parameters::build(env::args()).unwrap_or_else(|err| {
+        eprintln!("Problem parsing arguments: {err}");
         process::exit(1);
     });
 
     if let Err(e) = run(params) {
-        println!("Application error: {e}");
+        eprintln!("Application error: {e}");
         process::exit(1);
     }
 }
@@ -29,28 +27,4 @@ fn run(params: Parameters) -> Result<(), Box<dyn Error>> {
     }
 
     Ok(())
-}
-
-struct Parameters {
-    pub query: String,
-    pub file_path: String,
-    pub ignore_case: bool,
-}
-
-impl Parameters {
-    fn build(args: &[String]) -> Result<Parameters, &'static str> {
-        if args.len() < 3 {
-            return Err("Not enough arguments");
-        }
-        let query = args[1].clone();
-        let file_path = args[2].clone();
-
-        let ignore_case = env::var("IGNORE_CASE").is_ok();
-
-        Ok(Parameters {
-            query,
-            file_path,
-            ignore_case,
-        })
-    }
 }
