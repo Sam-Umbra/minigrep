@@ -10,7 +10,7 @@ pub struct Parameters {
     #[arg(short, long)]
     pub query: String,
 
-    #[arg(short, long = "file-path")]
+    #[arg(short, long = "file-path", conflicts_with = "directory")]
     pub file_path: Option<String>,
 
     #[arg(short, long = "ignore-case")]
@@ -19,21 +19,13 @@ pub struct Parameters {
     #[arg(short, long = "whole-word")]
     pub whole_word: bool,
 
-    #[arg(short, long, num_args = 0..=1, default_missing_value = ".")]
+    #[arg(short, long, num_args = 0..=1, default_missing_value = ".", conflicts_with = "file_path")]
     pub directory: Option<PathBuf>,
 
     #[arg(short, long)]
     pub simple_search: bool,
-    // TODO: Directory search
-    // Also return the file name
 
-    // TODO: Simple search
-    // Returns how many times the word was found, in directory search also return the file name
-
-    // TODO: Normal Search
-    // Should return the line number where the word was found, in directory search returns file name and lines
-
-    // TODO: Integrate Threading (Use Rayon crate)
+    
 }
 
 pub struct FileMatchModel {
@@ -73,6 +65,11 @@ impl Display for LineMatchModel {
         write!(f, "Line {}: {}", self.line, self.content)
     }
 }
+
+// Global Rust Parallel Searching For Input/Output
+// Rust Input/Output Parallel Searching
+// RIOPS
+// RIO
 
 /* impl Parameters {
     pub fn build<T>(mut args: T) -> Result<Parameters, &'static str>

@@ -1,9 +1,9 @@
 use clap::Parser;
-use std::{error::Error, fs, process};
-use ugrep::{
+use riops::{
     models::Parameters,
     search_engine::{search_directory, search_file},
 };
+use std::{error::Error, fs, process};
 
 fn main() {
     /* let params = Parameters::build(env::args()).unwrap_or_else(|err| {
@@ -20,8 +20,20 @@ fn main() {
 
 fn run(params: Parameters) -> Result<(), Box<dyn Error>> {
     if let Some(dir) = &params.directory {
-        for file_match in search_directory(dir, &params) {
-            println!("{file_match}\n");
+        let file_matches = search_directory(dir, &params);
+        if params.simple_search {
+            for file_match in &file_matches {
+                println!(
+                    "{} in {}: {} occurrences(s)",
+                    params.query,
+                    file_match.file_name,
+                    file_match.lines.len()
+                )
+            }
+        } else {
+            for file_match in file_matches {
+                println!("{file_match}\n");
+            }
         }
     } else {
         let path = params
@@ -29,8 +41,13 @@ fn run(params: Parameters) -> Result<(), Box<dyn Error>> {
             .as_deref()
             .ok_or("File path is required when not using --directory")?;
         let file_contents = fs::read_to_string(path)?;
-        for line_match in search_file(&params, &file_contents) {
-            println!("{line_match}");
+        let line_matches = search_file(&params, &file_contents);
+        if params.simple_search {
+            println!("{}: {} Occurrences(s)", params.query, line_matches.len())
+        } else {
+            for line_match in line_matches {
+                println!("{line_match}");
+            }
         }
     }
 
