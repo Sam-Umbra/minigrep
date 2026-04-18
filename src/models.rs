@@ -1,3 +1,8 @@
+use std::{
+    fmt::{self, Debug, Display, Formatter},
+    path::PathBuf,
+};
+
 use clap::Parser;
 
 #[derive(Parser, Debug)]
@@ -6,7 +11,7 @@ pub struct Parameters {
     pub query: String,
 
     #[arg(short, long = "file-path")]
-    pub file_path: String,
+    pub file_path: Option<String>,
 
     #[arg(short, long = "ignore-case")]
     pub ignore_case: bool,
@@ -14,12 +19,11 @@ pub struct Parameters {
     #[arg(short, long = "whole-word")]
     pub whole_word: bool,
 
-    #[arg(short, long)]
-    pub directory: Option<String>,
+    #[arg(short, long, num_args = 0..=1, default_missing_value = ".")]
+    pub directory: Option<PathBuf>,
 
     #[arg(short, long)]
     pub simple_search: bool,
-
     // TODO: Directory search
 
     // TODO: Simple search
@@ -29,6 +33,24 @@ pub struct Parameters {
     // Should return the line number where the word was found, in directory search returns file name and lines
 
     // TODO: Integrate Threading (Use Rayon crate)
+}
+
+#[derive(Debug)]
+pub struct LineMatchModel {
+    pub line: usize,
+    pub content: String,
+}
+
+impl LineMatchModel {
+    pub fn new(line: usize, content: String) -> LineMatchModel {
+        LineMatchModel { line, content }
+    }
+}
+
+impl Display for LineMatchModel {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "Line {}: {}", self.line, self.content)
+    }
 }
 
 /* impl Parameters {

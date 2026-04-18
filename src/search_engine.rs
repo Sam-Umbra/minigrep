@@ -1,30 +1,56 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, fs, path::PathBuf};
 
-use crate::parameter::Parameters;
+use walkdir::WalkDir;
 
-pub fn search_file<'a>(params: &Parameters, file_contents: &'a str) -> Vec<&'a str> {
-    let query = if params.ignore_case {
-        params.query.to_lowercase()
+use crate::models::{LineMatchModel, Parameters};
+
+pub fn search_file(params: &Parameters, file_contents: &str) -> Vec<LineMatchModel> {
+    let query: Cow<str> = if params.ignore_case {
+        Cow::Owned(params.query.to_lowercase())
     } else {
-        params.query.clone()
+        Cow::Borrowed(&params.query)
     };
 
     file_contents
         .lines()
-        .filter(|line| {
+        .enumerate()
+        .filter_map(|(i, line)| {
             let normalized_line: Cow<str> = if params.ignore_case {
                 Cow::Owned(line.to_lowercase())
             } else {
                 Cow::Borrowed(line)
             };
 
-            if params.whole_word {
+            let matched = if params.whole_word {
                 is_whole_word_match(&normalized_line, &query)
             } else {
-                normalized_line.contains(&query)
+                normalized_line.contains(query.as_ref())
+            };
+
+            if matched {
+                Some(LineMatchModel::new(i + 1, line.to_string()))
+            } else {
+                None
             }
         })
         .collect()
+}
+
+pub fn search_directory(dir: &PathBuf, params: &Parameters) -> Vec<LineMatchModel> {
+    let mut result: Vec<LineMatchModel> = Vec::new();
+
+    for entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
+        let path = entry.path();
+
+        if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("txt") {
+            match fs::read_to_string(path) {
+                Ok(content) => result.extend(search_file(params, &content)),
+                Err(e) => eprintln!("Couldn't read {:?}: {}", path, e),
+            }
+        }
+    }
+
+    result
 }
 
 fn is_whole_word_match(line: &str, query: &str) -> bool {
