@@ -25,6 +25,7 @@ pub struct Parameters {
     #[arg(short, long)]
     pub simple_search: bool,
     // TODO: Directory search
+    // Also return the file name
 
     // TODO: Simple search
     // Returns how many times the word was found, in directory search also return the file name
@@ -35,14 +36,34 @@ pub struct Parameters {
     // TODO: Integrate Threading (Use Rayon crate)
 }
 
-#[derive(Debug)]
+pub struct FileMatchModel {
+    pub file_name: String,
+    pub lines: Vec<LineMatchModel>,
+}
+
+impl FileMatchModel {
+    pub fn new(file_name: String, lines: Vec<LineMatchModel>) -> Self {
+        FileMatchModel { file_name, lines }
+    }
+}
+
+impl Display for FileMatchModel {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "File: {}", self.file_name)?;
+        for line in &self.lines {
+            write!(f, "\n{}", line)?;
+        }
+        Ok(())
+    }
+}
+
 pub struct LineMatchModel {
     pub line: usize,
     pub content: String,
 }
 
 impl LineMatchModel {
-    pub fn new(line: usize, content: String) -> LineMatchModel {
+    pub fn new(line: usize, content: String) -> Self {
         LineMatchModel { line, content }
     }
 }

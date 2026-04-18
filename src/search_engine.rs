@@ -2,7 +2,7 @@ use std::{borrow::Cow, fs, path::PathBuf};
 
 use walkdir::WalkDir;
 
-use crate::models::{LineMatchModel, Parameters};
+use crate::models::{FileMatchModel, LineMatchModel, Parameters};
 
 pub fn search_file(params: &Parameters, file_contents: &str) -> Vec<LineMatchModel> {
     let query: Cow<str> = if params.ignore_case {
@@ -36,15 +36,21 @@ pub fn search_file(params: &Parameters, file_contents: &str) -> Vec<LineMatchMod
         .collect()
 }
 
-pub fn search_directory(dir: &PathBuf, params: &Parameters) -> Vec<LineMatchModel> {
-    let mut result: Vec<LineMatchModel> = Vec::new();
+pub fn search_directory(dir: &PathBuf, params: &Parameters) -> Vec<FileMatchModel> {
+    let mut result: Vec<FileMatchModel> = Vec::new();
 
     for entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
 
         if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("txt") {
             match fs::read_to_string(path) {
-                Ok(content) => result.extend(search_file(params, &content)),
+                Ok(content) => {
+                    let lines = search_file(params, &content);
+                    if !lines.is_empty() {
+                        let file_name = path.to_string_lossy().to_string();
+                        result.push(FileMatchModel::new(file_name, lines));
+                    }
+                },
                 Err(e) => eprintln!("Couldn't read {:?}: {}", path, e),
             }
         }

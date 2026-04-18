@@ -1,7 +1,7 @@
 use clap::Parser;
 use std::{error::Error, fs, process};
 use ugrep::{
-    models::{LineMatchModel, Parameters},
+    models::Parameters,
     search_engine::{search_directory, search_file},
 };
 
@@ -19,19 +19,19 @@ fn main() {
 }
 
 fn run(params: Parameters) -> Result<(), Box<dyn Error>> {
-    let results: Vec<LineMatchModel> = if let Some(dir) = &params.directory {
-        search_directory(dir, &params)
+    if let Some(dir) = &params.directory {
+        for file_match in search_directory(dir, &params) {
+            println!("{file_match}\n");
+        }
     } else {
         let path = params
             .file_path
             .as_deref()
             .ok_or("File path is required when not using --directory")?;
         let file_contents = fs::read_to_string(path)?;
-        search_file(&params, &file_contents)
-    };
-
-    for m in results {
-        println!("{m}");
+        for line_match in search_file(&params, &file_contents) {
+            println!("{line_match}");
+        }
     }
 
     Ok(())
