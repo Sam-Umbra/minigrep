@@ -26,7 +26,7 @@ The compiled binary will be at `target/release/riops`.
 ## Usage
 
 ```
-riops [OPTIONS] --query <QUERY>
+rps [OPTIONS] --query <QUERY>
 ```
 
 ### Options
@@ -50,28 +50,22 @@ When `--directory` is used without `--extension`, only `.txt` files are searched
 
 ```bash
 # Search a single file
-riops --query "hello" --file-path ./notes.txt
+rps --query "hello" --file-path ./notes.txt
 
-# Recursively search the current directory (default: .txt files)
-riops --query "hello" --directory
+# Recursively search the current directory
+rps --query "hello" --directory
 
 # Recursively search a specific directory
-riops --query "hello" --directory ./docs
-
-# Search only Rust source files
-riops -q "fn main" -d ./src --extension rs
-
-# Search multiple extensions at once
-riops -q "rayon" -d . -e rs -e toml
+rps --query "hello" --directory ./docs
 
 # Case-insensitive search
-riops -q "hello" -f ./notes.txt --ignore-case
+rps -q "hello" -f ./notes.txt --ignore-case
 
 # Whole-word match across a directory
-riops -q "log" -d ./logs --whole-word
+rps -q "log" -d ./logs --whole-word
 
 # Summary output (occurrence counts only)
-riops -q "error" -d ./logs --simple-search
+rps -q "error" -d ./logs --simple-search
 ```
 
 ### Output
