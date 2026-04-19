@@ -169,7 +169,7 @@ pub fn search_directory(dir: &PathBuf, params: &Parameters) -> Vec<FileMatchMode
 /// # Returns
 ///
 /// `false` when `query` is empty (avoids a match at every position).
-fn is_whole_word_match(line: &str, query: &str) -> bool {
+pub fn is_whole_word_match(line: &str, query: &str) -> bool {
     if query.is_empty() {
         return false;
     }
