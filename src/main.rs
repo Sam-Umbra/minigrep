@@ -21,10 +21,24 @@ fn main() {
 /// `params.directory` is set. Two output modes are supported, controlled by
 /// `params.simple_search`:
 ///
-/// | Mode       | Output                                                          |
-/// |------------|-----------------------------------------------------------------|
-/// | Normal     | Every matching line prefixed with its 1-based line number.      |
-/// | Simple     | One summary line per file: `<query> in <file>: N occurrences(s)` |
+/// | Mode   | Output                                                             |
+/// |--------|--------------------------------------------------------------------|
+/// | Normal | Every matching line prefixed with its 1-based line number.         |
+/// | Simple | One summary line per file: `<query> in <file>: N occurrences(s)`  |
+///
+/// # Examples
+///
+/// ```bash
+/// # Normal mode — shows each matching line
+/// rps -q "error" -f ./app.log
+/// # Line 3: error: connection refused
+/// # Line 7: error: timeout
+///
+/// # Simple mode — shows a count per file
+/// rps -q "error" -d ./logs --simple-search
+/// # error in ./logs/app.log: 2 occurrences(s)
+/// # error in ./logs/system.log: 5 occurrences(s)
+/// ```
 ///
 /// # Errors
 ///
