@@ -97,7 +97,3 @@ hello in ./docs/intro.txt: 2 occurrences(s)
 | `clap`     | 4.6.1    | CLI argument parsing             |
 | `rayon`    | 1.12.0   | Data parallelism / threading     |
 | `walkdir`  | 2.5.0    | Recursive directory traversal    |
-
-## License
-
-MIT
